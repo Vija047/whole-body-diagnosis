@@ -1,0 +1,14 @@
+artifact_uri: file:D:/Study Materials/6th sem/MLOPS/Project/mlruns/416416252389239897/6a199af3333e49efbfd577e832a6fd10/artifacts
+end_time: 1774864376530
+entry_point_name: ''
+experiment_id: '416416252389239897'
+lifecycle_stage: active
+run_id: 6a199af3333e49efbfd577e832a6fd10
+run_name: ckd_v1
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1774864374079
+status: 3
+tags: []
+user_id: abish

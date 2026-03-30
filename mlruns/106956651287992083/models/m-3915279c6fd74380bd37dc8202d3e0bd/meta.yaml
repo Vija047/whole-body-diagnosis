@@ -1,0 +1,10 @@
+artifact_location: file:D:/Study Materials/6th sem/MLOPS/Project/mlruns/106956651287992083/models/m-3915279c6fd74380bd37dc8202d3e0bd/artifacts
+creation_timestamp: 1774864370285
+experiment_id: '106956651287992083'
+last_updated_timestamp: 1774864373953
+model_id: m-3915279c6fd74380bd37dc8202d3e0bd
+model_type: null
+name: diabetes_model
+source_run_id: c4878b71316543aa9d45962923613fed
+status: 2
+status_message: null

@@ -1,0 +1,16 @@
+creation_timestamp: 1774864376504
+current_stage: None
+deployment_job_state: null
+description: null
+last_updated_timestamp: 1774864376504
+model_id: m-410a49115e7f448cb155d142e18b78fd
+name: ckd_diagnosis_model
+run_id: 6a199af3333e49efbfd577e832a6fd10
+run_link: null
+source: models:/m-410a49115e7f448cb155d142e18b78fd
+status: READY
+status_message: null
+storage_location: file:D:/Study Materials/6th sem/MLOPS/Project/mlruns/416416252389239897/models/m-410a49115e7f448cb155d142e18b78fd/artifacts
+user_id: null
+version: 1
+workspace: default

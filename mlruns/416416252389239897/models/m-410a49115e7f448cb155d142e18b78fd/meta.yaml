@@ -1,0 +1,10 @@
+artifact_location: file:D:/Study Materials/6th sem/MLOPS/Project/mlruns/416416252389239897/models/m-410a49115e7f448cb155d142e18b78fd/artifacts
+creation_timestamp: 1774864374121
+experiment_id: '416416252389239897'
+last_updated_timestamp: 1774864376497
+model_id: m-410a49115e7f448cb155d142e18b78fd
+model_type: null
+name: ckd_model
+source_run_id: 6a199af3333e49efbfd577e832a6fd10
+status: 2
+status_message: null

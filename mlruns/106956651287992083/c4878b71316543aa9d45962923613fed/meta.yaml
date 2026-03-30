@@ -1,0 +1,14 @@
+artifact_uri: file:D:/Study Materials/6th sem/MLOPS/Project/mlruns/106956651287992083/c4878b71316543aa9d45962923613fed/artifacts
+end_time: 1774864374004
+entry_point_name: ''
+experiment_id: '106956651287992083'
+lifecycle_stage: active
+run_id: c4878b71316543aa9d45962923613fed
+run_name: diabetes_v1
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1774864370243
+status: 3
+tags: []
+user_id: abish

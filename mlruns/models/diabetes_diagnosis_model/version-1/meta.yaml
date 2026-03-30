@@ -1,0 +1,16 @@
+creation_timestamp: 1774864373976
+current_stage: None
+deployment_job_state: null
+description: null
+last_updated_timestamp: 1774864373976
+model_id: m-3915279c6fd74380bd37dc8202d3e0bd
+name: diabetes_diagnosis_model
+run_id: c4878b71316543aa9d45962923613fed
+run_link: null
+source: models:/m-3915279c6fd74380bd37dc8202d3e0bd
+status: READY
+status_message: null
+storage_location: file:D:/Study Materials/6th sem/MLOPS/Project/mlruns/106956651287992083/models/m-3915279c6fd74380bd37dc8202d3e0bd/artifacts
+user_id: null
+version: 1
+workspace: default

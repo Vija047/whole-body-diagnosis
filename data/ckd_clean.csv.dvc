@@ -1,0 +1,5 @@
+outs:
+- md5: 47ef5acbc8f919e1ce18604e683ec517
+  size: 43156
+  hash: md5
+  path: ckd_clean.csv
