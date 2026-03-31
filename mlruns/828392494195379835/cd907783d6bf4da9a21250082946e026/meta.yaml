@@ -1,0 +1,14 @@
+artifact_uri: file:D:/Study Materials/6th sem/MLOPS/Project/mlruns/828392494195379835/cd907783d6bf4da9a21250082946e026/artifacts
+end_time: 1774933459361
+entry_point_name: ''
+experiment_id: '828392494195379835'
+lifecycle_stage: active
+run_id: cd907783d6bf4da9a21250082946e026
+run_name: cld_v1
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1774933456727
+status: 3
+tags: []
+user_id: abish

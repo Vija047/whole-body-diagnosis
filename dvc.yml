@@ -1,0 +1,33 @@
+stages:
+  train_diabetes:
+    cmd: python src/training/register_models.py
+    deps:
+      - data/diabetes.csv
+      - src/training/register_models.py
+    outs:
+      - models/diabetes_model.pkl
+      - models/diabetes_scaler.pkl
+
+  train_ckd:
+    cmd: python src/training/register_models.py
+    deps:
+      - data/ckd_clean.csv
+    outs:
+      - models/ckd_model.pkl
+      - models/ckd_scaler.pkl
+
+  train_cld:
+    cmd: python src/training/register_models.py
+    deps:
+      - data/cld.csv
+    outs:
+      - models/cld_model.pkl
+      - models/cld_scaler.pkl
+
+  train_heart:
+    cmd: python src/training/register_models.py
+    deps:
+      - data/heart.csv
+    outs:
+      - models/heart_model.pkl
+      - models/heart_scaler.pkl

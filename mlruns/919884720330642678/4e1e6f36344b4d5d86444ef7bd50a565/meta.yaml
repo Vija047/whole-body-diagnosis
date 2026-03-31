@@ -1,0 +1,14 @@
+artifact_uri: file:D:/Study Materials/6th sem/MLOPS/Project/mlruns/919884720330642678/4e1e6f36344b4d5d86444ef7bd50a565/artifacts
+end_time: 1774933402534
+entry_point_name: ''
+experiment_id: '919884720330642678'
+lifecycle_stage: active
+run_id: 4e1e6f36344b4d5d86444ef7bd50a565
+run_name: heart_v1
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1774933399837
+status: 3
+tags: []
+user_id: abish

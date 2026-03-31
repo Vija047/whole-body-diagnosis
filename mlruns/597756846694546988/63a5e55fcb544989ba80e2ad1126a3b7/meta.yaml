@@ -1,0 +1,14 @@
+artifact_uri: file:D:/Study Materials/6th sem/MLOPS/Project/mlruns/597756846694546988/63a5e55fcb544989ba80e2ad1126a3b7/artifacts
+end_time: 1774869214168
+entry_point_name: ''
+experiment_id: '597756846694546988'
+lifecycle_stage: active
+run_id: 63a5e55fcb544989ba80e2ad1126a3b7
+run_name: diabetes_optuna
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1774869214135
+status: 3
+tags: []
+user_id: abish

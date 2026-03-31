@@ -1,0 +1,10 @@
+artifact_location: file:D:/Study Materials/6th sem/MLOPS/Project/mlruns/828392494195379835/models/m-d721200f2c574aac88b7fe68376d575b/artifacts
+creation_timestamp: 1774934415868
+experiment_id: '828392494195379835'
+last_updated_timestamp: 1774934418466
+model_id: m-d721200f2c574aac88b7fe68376d575b
+model_type: null
+name: cld_model
+source_run_id: 59ddd43a0493423ab06e8d0e88828f64
+status: 2
+status_message: null

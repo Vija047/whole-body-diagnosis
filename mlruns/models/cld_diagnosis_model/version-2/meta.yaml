@@ -1,0 +1,16 @@
+creation_timestamp: 1774934418479
+current_stage: None
+deployment_job_state: null
+description: null
+last_updated_timestamp: 1774934418479
+model_id: m-d721200f2c574aac88b7fe68376d575b
+name: cld_diagnosis_model
+run_id: 59ddd43a0493423ab06e8d0e88828f64
+run_link: null
+source: models:/m-d721200f2c574aac88b7fe68376d575b
+status: READY
+status_message: null
+storage_location: file:D:/Study Materials/6th sem/MLOPS/Project/mlruns/828392494195379835/models/m-d721200f2c574aac88b7fe68376d575b/artifacts
+user_id: null
+version: 2
+workspace: default

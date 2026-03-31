@@ -1,0 +1,10 @@
+artifact_location: file:D:/Study Materials/6th sem/MLOPS/Project/mlruns/919884720330642678/models/m-69d1eb1e8f8244bb8b0d1d062995190d/artifacts
+creation_timestamp: 1774933399887
+experiment_id: '919884720330642678'
+last_updated_timestamp: 1774933402485
+model_id: m-69d1eb1e8f8244bb8b0d1d062995190d
+model_type: null
+name: heart_model
+source_run_id: 4e1e6f36344b4d5d86444ef7bd50a565
+status: 2
+status_message: null

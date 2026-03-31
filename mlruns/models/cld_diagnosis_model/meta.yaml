@@ -1,8 +1,8 @@
 aliases: {}
-creation_timestamp: 1774864379291
+creation_timestamp: 1774933459330
 deployment_job_id: null
 deployment_job_state: null
 description: null
-last_updated_timestamp: 1774864379295
+last_updated_timestamp: 1774934418479
 name: cld_diagnosis_model
 workspace: default

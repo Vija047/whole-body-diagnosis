@@ -1,16 +1,16 @@
-creation_timestamp: 1774864381881
+creation_timestamp: 1774933462108
 current_stage: None
 deployment_job_state: null
 description: null
-last_updated_timestamp: 1774864381881
-model_id: m-254fb8c4c5b145a19bf52af62dbed651
+last_updated_timestamp: 1774933462108
+model_id: m-9b3c61da9b6a4335bda41edde70ef589
 name: heart_diagnosis_model
-run_id: b503e1c578b048b8b1855ee5c224cbcd
+run_id: 3d4940a35df747e09b23e217ffee9d66
 run_link: null
-source: models:/m-254fb8c4c5b145a19bf52af62dbed651
+source: models:/m-9b3c61da9b6a4335bda41edde70ef589
 status: READY
 status_message: null
-storage_location: file:D:/Study Materials/6th sem/MLOPS/Project/mlruns/919884720330642678/models/m-254fb8c4c5b145a19bf52af62dbed651/artifacts
+storage_location: file:D:/Study Materials/6th sem/MLOPS/Project/mlruns/919884720330642678/models/m-9b3c61da9b6a4335bda41edde70ef589/artifacts
 user_id: null
 version: 1
 workspace: default
