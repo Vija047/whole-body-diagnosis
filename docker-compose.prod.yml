@@ -1,0 +1,300 @@
+version: '3.8'
+
+# Production Docker Compose Configuration
+# Deploy with: docker-compose -f docker-compose.prod.yml up -d
+
+services:
+  # ─────────────────────────────────────────────────────────
+  # PostgreSQL Database
+  # ─────────────────────────────────────────────────────────
+  
+  postgres:
+    image: postgres:15-alpine
+    container_name: mlops-postgres
+    restart: always
+    env_file: .env.production
+    environment:
+      POSTGRES_DB: mlops
+      POSTGRES_USER: ${DB_USER:-mlops_app}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_INITDB_ARGS: "-c log_min_duration_statement=1000"
+    
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    
+    ports:
+      - "127.0.0.1:5432:5432"  # Only expose locally
+    
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-mlops_app}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    
+    networks:
+      - mlops-network
+    
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ─────────────────────────────────────────────────────────
+  # MLflow Tracking Server
+  # ─────────────────────────────────────────────────────────
+  
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.9.2
+    container_name: mlops-mlflow
+    restart: always
+    
+    environment:
+      MLFLOW_BACKEND_STORE_URI: postgresql://${DB_USER:-mlops_app}:${DB_PASSWORD}@postgres:5432/mlflow
+      MLFLOW_DEFAULT_ARTIFACT_ROOT: /mlflow-artifacts
+    
+    volumes:
+      - mlflow_artifacts:/mlflow-artifacts
+      - mlflow_db:/var/lib/postgresql
+    
+    ports:
+      - "127.0.0.1:5001:5000"  # Only expose locally
+    
+    entrypoint: mlflow server --backend-store-uri $${MLFLOW_BACKEND_STORE_URI} --default-artifact-root $${MLFLOW_DEFAULT_ARTIFACT_ROOT} --host 0.0.0.0 --port 5000
+    
+    depends_on:
+      postgres:
+        condition: service_healthy
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    
+    networks:
+      - mlops-network
+    
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ─────────────────────────────────────────────────────────
+  # FastAPI Application
+  # ─────────────────────────────────────────────────────────
+  
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - BUILDKIT_INLINE_CACHE=1
+    
+    image: mlops-api:latest
+    container_name: mlops-api
+    restart: always
+    
+    env_file: .env.production
+    
+    environment:
+      DATABASE_URL: postgresql://${DB_USER:-mlops_app}:${DB_PASSWORD}@postgres:5432/mlops
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      LOG_DIR: /app/logs
+    
+    volumes:
+      - ./models:/app/models:ro
+      - ./data:/app/data:ro
+      - api_logs:/app/logs
+    
+    ports:
+      - "8000:8000"
+    
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mlflow:
+        condition: service_healthy
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "-H", "x-api-key: ${API_KEY}", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    
+    networks:
+      - mlops-network
+    
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+  
+  # ─────────────────────────────────────────────────────────
+  # Nginx Reverse Proxy (Optional but Recommended)
+  # ─────────────────────────────────────────────────────────
+  
+  nginx:
+    image: nginx:latest
+    container_name: mlops-nginx
+    restart: always
+    
+    ports:
+      - "80:80"
+      - "443:443"
+    
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - nginx_cache:/var/cache/nginx
+    
+    depends_on:
+      - api
+    
+    networks:
+      - mlops-network
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ─────────────────────────────────────────────────────────
+  # Monitoring: Prometheus (Optional)
+  # ─────────────────────────────────────────────────────────
+  
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: mlops-prometheus
+    restart: always
+    
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    
+    ports:
+      - "127.0.0.1:9090:9090"  # Only expose locally
+    
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    
+    networks:
+      - mlops-network
+    
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ─────────────────────────────────────────────────────────
+  # Monitoring: Grafana (Optional)
+  # ─────────────────────────────────────────────────────────
+  
+  grafana:
+    image: grafana/grafana:latest
+    container_name: mlops-grafana
+    restart: always
+    
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: false
+    
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
+    
+    ports:
+      - "127.0.0.1:3000:3000"  # Only expose locally
+    
+    depends_on:
+      - prometheus
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    
+    networks:
+      - mlops-network
+    
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+# ─────────────────────────────────────────────────────────
+# Networks
+# ─────────────────────────────────────────────────────────
+
+networks:
+  mlops-network:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: mlops_br0
+
+# ─────────────────────────────────────────────────────────
+# Volumes
+# ─────────────────────────────────────────────────────────
+
+volumes:
+  postgres_data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./volumes/postgres_data
+  
+  mlflow_artifacts:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./volumes/mlflow_artifacts
+  
+  mlflow_db:
+    driver: local
+  
+  api_logs:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./volumes/api_logs
+  
+  prometheus_data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./volumes/prometheus_data
+  
+  grafana_data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./volumes/grafana_data
+  
+  nginx_cache:
+    driver: local
