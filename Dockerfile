@@ -1,4 +1,4 @@
-FROM python:3.11-slim as base
+FROM python:3.11-slim-bookworm as base
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \
@@ -13,8 +13,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     build-essential \
     libpq-dev \
-    python3-dev \
-    gcc \
     && rm -rf /var/lib/apt/lists/*
 
 
