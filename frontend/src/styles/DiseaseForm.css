@@ -1,0 +1,205 @@
+/* ===== Disease Form Styles ===== */
+
+.form-container {
+  animation: slideInUp 0.5s ease;
+  padding: 100px 32px 40px 32px;
+  max-width: 900px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 10;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.form-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.form-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+  font-family: var(--font-display);
+  letter-spacing: -0.3px;
+}
+
+.form-subtitle {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  margin-bottom: 30px;
+  font-family: var(--font-body);
+}
+
+/* ===== Form Fields ===== */
+.disease-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.fields-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-label {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+  font-family: var(--font-body);
+}
+
+.form-input {
+  padding: 12px 15px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  font-family: inherit;
+  transition: all 0.3s ease;
+  background-color: rgba(255, 255, 255, 0.03);
+  color: var(--text-primary);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--cyan);
+  background-color: rgba(0, 212, 255, 0.05);
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+}
+
+.form-input:hover {
+  border-color: var(--cyan);
+}
+
+.form-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* ===== Form Messages ===== */
+.error-message {
+  background-color: var(--red-dim);
+  color: var(--red);
+  padding: 12px 15px;
+  border-radius: var(--radius-sm);
+  border-left: 4px solid var(--red);
+  font-size: 0.95rem;
+  animation: slideInUp 0.3s ease;
+  font-family: var(--font-body);
+}
+
+/* ===== Submit Button ===== */
+.submit-btn {
+  background: linear-gradient(135deg, var(--cyan), var(--emerald));
+  color: var(--navy);
+  border: none;
+  padding: 14px 32px;
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 30px rgba(0, 212, 255, 0.25);
+  margin-top: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: var(--font-body);
+}
+
+.submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 212, 255, 0.35);
+}
+
+.submit-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.back-btn {
+  background: var(--cyan);
+  border: 2px solid var(--cyan);
+  color: var(--navy);
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  margin-bottom: 30px;
+  font-family: var(--font-body);
+  display: inline-block;
+  position: relative;
+  z-index: 20;
+  box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+}
+
+.back-btn:hover {
+  background: var(--emerald);
+  border-color: var(--emerald);
+  color: var(--navy);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 212, 255, 0.5);
+}
+
+.back-btn:active {
+  transform: translateY(0);
+}
+
+/* ===== Responsive Design ===== */
+@media (max-width: 768px) {
+  .form-container {
+    padding: 20px 16px;
+  }
+
+  .form-card {
+    padding: 25px;
+  }
+
+  .form-title {
+    font-size: 1.8rem;
+  }
+
+  .fields-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-card {
+    padding: 20px;
+  }
+
+  .form-title {
+    font-size: 1.3rem;
+  }
+
+  .submit-btn {
+    padding: 12px 24px;
+    font-size: 0.95rem;
+  }
+}
