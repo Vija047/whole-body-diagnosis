@@ -21,14 +21,11 @@ services:
       - key: LOG_LEVEL
         value: INFO
       - key: ALLOWED_ORIGINS
-        value: "*" # Use "*" for now, change to your frontend URL later
+        value: "*"
 
   # 💻 React Frontend (Static Site)
-  - type: web
+  - type: static
     name: whole-body-diagnosis-ui
-    env: static
-    plan: free
-    # Static sites do not support region
     buildCommand: cd frontend && npm install && npm run build
     staticPublishPath: frontend/dist
     envVars:
