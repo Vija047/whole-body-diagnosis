@@ -11,7 +11,11 @@ WORKDIR /app
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
+    gcc \
+    python3-dev \
+    libc-dev \
     && rm -rf /var/lib/apt/lists/*
+
 
 # Build stage
 FROM base as builder
