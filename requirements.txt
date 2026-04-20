@@ -10,7 +10,7 @@ pydantic-settings==2.1.0
 
 # ML Engineering
 mlflow==2.9.1
-optuna==3.14.0
+optuna==3.4.0
 shap==0.43.0
 evidently==0.4.17
 dvc==3.41.2
