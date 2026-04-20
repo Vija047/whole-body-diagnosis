@@ -5,43 +5,43 @@ const diseaseConfigs = {
   diabetes: {
     name: 'Diabetes',
     fields: [
-      { label: 'HbA1c Level (%)', name: 'hba1c', placeholder: 'Enter HbA1c', type: 'number', step: '0.1' },
-      { label: 'Glucose Level (mg/dL)', name: 'glucose', placeholder: 'Enter glucose', type: 'number', step: '1' },
-      { label: 'Age (years)', name: 'age', placeholder: 'Enter age', type: 'number', step: '1' }
+      { label: 'HbA1c Level (%)', name: 'hbA1c_level', placeholder: '4.0 - 15.0', type: 'number', step: '0.1', min: '4', max: '15' },
+      { label: 'Glucose Level (mg/dL)', name: 'blood_glucose_level', placeholder: '70 - 400', type: 'number', step: '1', min: '70', max: '400' },
+      { label: 'Age (years)', name: 'age', placeholder: '1 - 120', type: 'number', step: '1', min: '1', max: '120' }
     ],
     apiEndpoint: '/predict/diabetes'
   },
   ckd: {
     name: 'Chronic Kidney Disease',
     fields: [
-      { label: 'Age (years)', name: 'age', placeholder: 'Enter age', type: 'number', step: '0.1' },
-      { label: 'Hemoglobin (g/dL)', name: 'hemo', placeholder: 'Hemoglobin level', type: 'number', step: '0.1' },
-      { label: 'PCV (%)', name: 'pcv', placeholder: 'Packed Cell Volume', type: 'number', step: '0.1' },
-      { label: 'RBC Count (millions/µL)', name: 'rbcc', placeholder: 'RBC Count', type: 'number', step: '0.1' },
-      { label: 'Serum Creatinine (mg/dL)', name: 'sc', placeholder: 'Serum Creatinine', type: 'number', step: '0.1' }
+      { label: 'Age (years)', name: 'age', placeholder: '1 - 120', type: 'number', step: '0.1', min: '1', max: '120' },
+      { label: 'Hemoglobin (g/dL)', name: 'hemo', placeholder: '3.0 - 20.0', type: 'number', step: '0.1', min: '3', max: '20' },
+      { label: 'PCV (%)', name: 'pcv', placeholder: '10 - 55', type: 'number', step: '0.1', min: '10', max: '55' },
+      { label: 'RBC Count (millions/µL)', name: 'rbcc', placeholder: '2.0 - 8.0', type: 'number', step: '0.1', min: '2', max: '8' },
+      { label: 'Serum Creatinine (mg/dL)', name: 'sc', placeholder: '0.5 - 10.0', type: 'number', step: '0.1', min: '0.5', max: '10' }
     ],
     apiEndpoint: '/predict/ckd'
   },
   cld: {
     name: 'Chronic Liver Disease',
     fields: [
-      { label: 'Alkaline Phosphatase (IU/L)', name: 'alkphos', placeholder: 'Alkaline Phosphatase', type: 'number', step: '1' },
-      { label: 'SGOT (IU/L)', name: 'sgot', placeholder: 'SGOT level', type: 'number', step: '1' },
-      { label: 'SGPT (IU/L)', name: 'sgpt', placeholder: 'SGPT level', type: 'number', step: '1' },
-      { label: 'Total Bilirubin (mg/dL)', name: 'total_bilirubin', placeholder: 'Total Bilirubin', type: 'number', step: '0.1' },
-      { label: 'Total Proteins (g/dL)', name: 'total_proteins', placeholder: 'Total Proteins', type: 'number', step: '0.1' },
-      { label: 'Albumin (g/dL)', name: 'albumin', placeholder: 'Albumin level', type: 'number', step: '0.1' }
+      { label: 'Alkaline Phosphatase (IU/L)', name: 'alkphos', placeholder: '30 - 500', type: 'number', step: '1', min: '30', max: '500' },
+      { label: 'SGOT (IU/L)', name: 'sgot', placeholder: '10 - 300', type: 'number', step: '1', min: '10', max: '300' },
+      { label: 'SGPT (IU/L)', name: 'sgpt', placeholder: '5 - 300', type: 'number', step: '1', min: '5', max: '300' },
+      { label: 'Total Bilirubin (mg/dL)', name: 'total_bilirubin', placeholder: '0.1 - 20.0', type: 'number', step: '0.1', min: '0.1', max: '20' },
+      { label: 'Total Proteins (g/dL)', name: 'total_proteins', placeholder: '4.0 - 10.0', type: 'number', step: '0.1', min: '4', max: '10' },
+      { label: 'Albumin (g/dL)', name: 'albumin', placeholder: '2.0 - 6.0', type: 'number', step: '0.1', min: '2', max: '6' }
     ],
     apiEndpoint: '/predict/cld'
   },
   heart: {
     name: 'Heart Disease',
     fields: [
-      { label: 'Age (years)', name: 'age', placeholder: 'Enter age', type: 'number', step: '1' },
-      { label: 'Cholesterol (mg/dL)', name: 'chol', placeholder: 'Cholesterol level', type: 'number', step: '1' },
-      { label: 'Resting Blood Pressure (mmHg)', name: 'trestbps', placeholder: 'Blood pressure', type: 'number', step: '1' },
-      { label: 'Chest Pain Type (0-3)', name: 'cp', placeholder: 'Chest pain type', type: 'number', step: '1', min: '0', max: '3' },
-      { label: 'Max Heart Rate (bpm)', name: 'thalachh', placeholder: 'Max heart rate', type: 'number', step: '1' }
+      { label: 'Age (years)', name: 'age', placeholder: '1 - 120', type: 'number', step: '1', min: '1', max: '120' },
+      { label: 'Cholesterol (mg/dL)', name: 'chol', placeholder: '100 - 400', type: 'number', step: '1', min: '100', max: '400' },
+      { label: 'Resting Blood Pressure (mmHg)', name: 'trestbps', placeholder: '80 - 200', type: 'number', step: '1', min: '80', max: '200' },
+      { label: 'Chest Pain Type (0-3)', name: 'cp', placeholder: '0 - 3', type: 'number', step: '1', min: '0', max: '3' },
+      { label: 'Max Heart Rate (bpm)', name: 'thalachh', placeholder: '60 - 220', type: 'number', step: '1', min: '60', max: '220' }
     ],
     apiEndpoint: '/predict/heart'
   }
@@ -84,7 +84,13 @@ export default function DiseaseForm({ disease, onBack, onResultsReceived }) {
       if (response.ok) {
         onResultsReceived(data)
       } else {
-        setError(data.detail || 'An error occurred')
+        // Handle Pydantic validation errors (often objects or arrays)
+        const errorDetail = typeof data.detail === 'string' 
+          ? data.detail 
+          : Array.isArray(data.detail)
+            ? data.detail.map(err => `${err.loc[1]}: ${err.msg}`).join(', ')
+            : 'Unprocessable input. Please check your data.'
+        setError(errorDetail)
       }
     } catch (err) {
       setError(`Failed to connect to API. Please make sure the backend is running at ${baseUrl}`)

@@ -702,7 +702,16 @@
   .hero {
     grid-template-columns: 1fr;
     gap: 40px;
-    padding: 60px 24px 40px;
+    padding: 100px 24px 40px;
+    text-align: center;
+  }
+
+  .hero p {
+    margin: 0 auto 36px;
+  }
+
+  .hero-actions {
+    justify-content: center;
   }
 
   .cards-grid {
@@ -735,19 +744,22 @@
 
 @media (max-width: 768px) {
   .hero {
-    padding: 40px 16px 20px;
+    padding: 80px 16px 20px;
   }
 
   .hero h1 {
-    font-size: 32px;
+    font-size: 28px;
+    line-height: 1.2;
   }
 
   .hero p {
     font-size: 14px;
+    max-width: 100%;
   }
 
   .hero-actions {
     flex-direction: column;
+    width: 100%;
   }
 
   .btn-hero,
@@ -755,16 +767,33 @@
     width: 100%;
   }
 
+  .hero-stats {
+    padding: 20px;
+  }
+
+  .stat-value {
+    font-size: 22px;
+  }
+
   .cards-grid {
     grid-template-columns: 1fr;
+    max-width: 400px;
+    margin: 0 auto;
   }
 
   .section {
     padding: 0 16px 40px;
   }
 
+  .section-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 16px;
+  }
+
   .section-title {
-    font-size: 20px;
+    font-size: 24px;
   }
 
   .stats-grid {
@@ -773,5 +802,23 @@
 
   .steps-row {
     grid-template-columns: 1fr;
+  }
+  
+  .feature-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero h1 {
+    font-size: 24px;
+  }
+  
+  .hero-badge {
+    font-size: 10px;
+    padding: 4px 10px;
   }
 }

@@ -46,34 +46,12 @@ const diseases = [
     riskLevel: 68,
     color: 'heart',
     topBar: 'heart'
-  },
-  {
-    id: 'lungs',
-    name: 'Lung Disease',
-    icon: SparklesIcon,
-    description: 'Detect pulmonary conditions through spirometry data, smoking index, and respiratory markers.',
-    accuracy: '76.6% Accuracy',
-    speed: '~2.0s',
-    riskLevel: 38,
-    color: 'lung',
-    topBar: 'lung'
-  },
-  {
-    id: 'neurological',
-    name: 'Neurological Risk',
-    icon: BeakerIcon,
-    description: 'Early Parkinson\'s and cognitive decline risk via motor tests and neurological markers.',
-    accuracy: '83.8% Accuracy',
-    speed: '~1.8s',
-    riskLevel: 28,
-    color: 'neural',
-    topBar: 'neural'
   }
 ]
 
 export default function Home({ onSelectDisease }) {
   const [stats] = useState({
-    modelsActive: '6/6',
+    modelsActive: '4/4',
     assessmentsToday: '1,247',
     avgAccuracy: '94.3%',
     totalAssessed: '42.8K',
@@ -87,9 +65,7 @@ export default function Home({ onSelectDisease }) {
       diabetes: 'linear-gradient(90deg, var(--cyan), #0099bb)',
       kidney: 'linear-gradient(90deg, var(--emerald), #006644)',
       liver: 'linear-gradient(90deg, var(--amber), #cc7700)',
-      heart: 'linear-gradient(90deg, var(--red), #aa0033)',
-      lung: 'linear-gradient(90deg, var(--violet), #5522aa)',
-      neural: 'linear-gradient(90deg, #ff8c42, #cc4400)'
+      heart: 'linear-gradient(90deg, var(--red), #aa0033)'
     }
     return gradients[color] || gradients.diabetes
   }
@@ -104,7 +80,7 @@ export default function Home({ onSelectDisease }) {
             ML-Powered · Real-time Analysis
           </div>
           <h1>Predict Disease Risk<br/>with <em>Clinical Precision</em></h1>
-          <p>Advanced machine learning models trained on millions of patient records provide early detection insights for 6 critical conditions — empowering better health decisions.</p>
+          <p>Advanced machine learning models trained on millions of patient records provide early detection insights for 4 critical conditions — empowering better health decisions.</p>
           <div className="hero-actions">
             <button className="btn-hero" onClick={() => onSelectDisease('diabetes')}>Start Assessment →</button>
             <button className="btn-outline">View Demo</button>
