@@ -6,8 +6,9 @@ services:
     plan: free
     region: ohio
     dockerContext: .
-    dockerFilePath: Dockerfile
+    dockerfilePath: Dockerfile
     preDeployCommand: python scripts/seed_db.py
+
     healthCheckPath: /health
     envVars:
       - key: PORT
