@@ -1,50 +1,26 @@
-FROM python:3.10-slim-bookworm as base
-
-# Set environment variables
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
+FROM python:3.10-slim
 
 WORKDIR /app
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    build-essential \
+RUN apt-get update && apt-get install -y \
+    gcc \
     libpq-dev \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Build stage
-FROM base as builder
-
+# Copy requirements and install
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Production stage
-FROM base
+# Copy the rest of the application
+COPY . .
 
-# Create non-root user
-RUN useradd -m -u 1000 appuser
+# Ensure logs directory exists
+RUN mkdir -p logs
 
-# Copy dependencies from builder
-COPY --from=builder /usr/local/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
-COPY --from=builder /usr/local/bin /usr/local/bin
-
-# Copy application code
-COPY --chown=appuser:appuser . .
-
-# Create logs directory
-RUN mkdir -p logs && chown appuser:appuser logs
-
-# Switch to non-root user
-USER appuser
-
+# Port setup (Railway and Render both use PORT environment variable)
 EXPOSE 8000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost:${PORT:-8000}/health || exit 1
-
-# Start application
-CMD ["sh", "-c", "uvicorn api.main:app --host 0.0.0.0 --port ${PORT:-8000} --log-level info"]
+# Start application using the correct module path for this project (api.main)
+CMD ["sh", "-c", "uvicorn api.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
