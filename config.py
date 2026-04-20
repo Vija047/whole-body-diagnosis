@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     API_PORT: int = Field(default=8000, description="API port")
     API_KEY: str = Field(default="dev-key-change-in-production", description="API key for authentication")
     DEBUG: bool = Field(default=False, description="Debug mode")
+    ALLOWED_ORIGINS: str = Field(default="*", description="CORS allowed origins (comma-separated)")
+
+
     
     # Model Paths
     MODELS_DIR: str = Field(default="models", description="Directory containing model files")
