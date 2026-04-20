@@ -78,13 +78,20 @@ def get_database_url():
     return url
 
 
+engine_args = {
+    "echo": settings.DEBUG
+}
+
+if not settings.DATABASE_URL.startswith("sqlite"):
+    engine_args["poolclass"] = QueuePool
+    engine_args["pool_size"] = settings.DB_POOL_SIZE
+    engine_args["max_overflow"] = settings.DB_MAX_OVERFLOW
+
 engine = create_engine(
     get_database_url(),
-    poolclass=QueuePool if not settings.DATABASE_URL.startswith("sqlite") else None,
-    pool_size=settings.DB_POOL_SIZE if not settings.DATABASE_URL.startswith("sqlite") else None,
-    max_overflow=settings.DB_MAX_OVERFLOW if not settings.DATABASE_URL.startswith("sqlite") else None,
-    echo=settings.DEBUG
+    **engine_args
 )
+
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
