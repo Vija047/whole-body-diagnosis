@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+
 import './App.css'
 import Home from './pages/Home'
 import DiseaseForm from './components/DiseaseForm'
@@ -9,6 +10,30 @@ function App() {
   const [currentPage, setCurrentPage] = useState('home')
   const [selectedDisease, setSelectedDisease] = useState(null)
   const [results, setResults] = useState(null)
+  const [apiStatus, setApiStatus] = useState({ active: 0, total: 4, loading: true })
+
+  useEffect(() => {
+    checkHealth()
+  }, [])
+
+  const checkHealth = async () => {
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+    try {
+      const start = Date.now()
+      const response = await fetch(`${baseUrl}/health`)
+      const data = await response.json()
+      if (response.ok) {
+        setApiStatus({ 
+          active: 4, 
+          total: 4, 
+          loading: false,
+          accuracy: '94.3%'
+        })
+      }
+    } catch (err) {
+      setApiStatus({ active: 0, total: 4, loading: false, error: true })
+    }
+  }
 
   const handleDiseaseSelect = (disease) => {
     setSelectedDisease(disease)
@@ -34,22 +59,23 @@ function App() {
           <a className="nav-logo" href="#" onClick={handleBackHome}>
             <div className="logo-icon"><HeartIcon width={24} height={24} /></div>
             MediScan
-            <span className="logo-tag">v2.1</span>
+            <span className="logo-tag">P-v2.1</span>
           </a>
           <div className="nav-vitals">
             <div className="vital-item">
-              <div className="vital-dot green"></div>
-              <span>Models Active&nbsp;</span><span className="vital-val">6/6</span>
+              <div className={`vital-dot ${apiStatus.active > 0 ? 'green' : 'red'}`}></div>
+              <span>Connection&nbsp;</span><span className="vital-val">{apiStatus.loading ? '...' : (apiStatus.active > 0 ? 'Online' : 'Offline')}</span>
             </div>
             <div className="vital-item">
               <div className="vital-dot cyan"></div>
-              <span>Assessments Today&nbsp;</span><span className="vital-val">1,247</span>
+              <span>Models&nbsp;</span><span className="vital-val">{apiStatus.active}/{apiStatus.total}</span>
             </div>
             <div className="vital-item">
               <div className="vital-dot amber"></div>
-              <span>Avg Accuracy&nbsp;</span><span className="vital-val">94.3%</span>
+              <span>Platform&nbsp;</span><span className="vital-val">Production</span>
             </div>
           </div>
+
           <div className="nav-actions">
             <button className="btn-ghost">Patient History</button>
             <button className="btn-primary" onClick={() => handleDiseaseSelect('diabetes')}>+ New Report</button>
