@@ -2,7 +2,7 @@ services:
   # 🧠 ML Ops API (Backend)
   - type: web
     name: whole-body-diagnosis-api
-    env: docker
+    runtime: docker
     plan: free
     region: ohio
     dockerContext: .
@@ -24,8 +24,9 @@ services:
         value: "*"
 
   # 💻 React Frontend (Static Site)
-  - type: static
+  - type: web
     name: whole-body-diagnosis-ui
+    runtime: static
     buildCommand: cd frontend && npm install && npm run build
     staticPublishPath: frontend/dist
     envVars:
