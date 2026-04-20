@@ -69,6 +69,10 @@ def get_database_url():
     """Get database URL, defaulting to SQLite for dev."""
     url = settings.DATABASE_URL
     
+    # Render and Heroku use 'postgres://' but SQLAlchemy requires 'postgresql://'
+    if url.startswith("postgres://"):
+        url = url.replace("postgres://", "postgresql://", 1)
+        
     # For SQLite, create directory if needed
     if url.startswith("sqlite"):
         db_path = url.replace("sqlite:///", "")

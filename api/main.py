@@ -22,6 +22,7 @@ from pydantic import BaseModel, Field, validator
 import joblib
 import numpy as np
 import pandas as pd
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from config import get_settings
@@ -59,7 +60,7 @@ app.add_middleware(
 
 def verify_api_key(x_api_key: str = Header(...)) -> str:
     """Verify API key from request header."""
-    if x_api_key != settings.API_KEY:
+    if x_api_key.strip() != settings.API_KEY.strip():
         app_logger.warning(f"Unauthorized API key attempt: {x_api_key[:10]}...")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -79,13 +80,25 @@ def load_models():
     scalers = {}
     diseases = ['diabetes', 'ckd', 'cld', 'heart']
     
+    # Use absolute path to avoid CWD issues in different environments
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    models_dir = os.path.join(base_dir, settings.MODELS_DIR)
+    
+    app_logger.info(f"🔍 Loading models from: {models_dir}")
+    if os.path.exists(models_dir):
+        app_logger.info(f"📂 Directory contents: {os.listdir(models_dir)}")
+    else:
+        app_logger.error(f"❌ Directory NOT FOUND: {models_dir}")
+    
     for disease in diseases:
-        model_path = os.path.join(settings.MODELS_DIR, f'{disease}_model.pkl')
-        scaler_path = os.path.join(settings.MODELS_DIR, f'{disease}_scaler.pkl')
+        model_path = os.path.join(models_dir, f'{disease}_model.pkl')
+        scaler_path = os.path.join(models_dir, f'{disease}_scaler.pkl')
         
         if not os.path.exists(model_path):
+            app_logger.error(f"❌ Model file missing: {model_path}")
             raise FileNotFoundError(f"Model not found: {model_path}")
         if not os.path.exists(scaler_path):
+            app_logger.error(f"❌ Scaler file missing: {scaler_path}")
             raise FileNotFoundError(f"Scaler not found: {scaler_path}")
         
         try:
@@ -104,10 +117,14 @@ try:
     MODELS, SCALERS = load_models()
     MODELS_READY = True
 except Exception as e:
-    app_logger.critical(f"Failed to load models on startup: {str(e)}")
+    app_logger.critical(f"🚨 Failed to load models on startup: {str(e)}")
+    # Store the actual error for debugging
+    STARTUP_ERROR = str(e)
     MODELS_READY = False
     MODELS = {}
     SCALERS = {}
+else:
+    STARTUP_ERROR = None
 
 
 # ─────────────────────────────────────────────────────────────────
@@ -311,8 +328,8 @@ async def health_check(db: Session = Depends(get_db)):
         - database_connected: Database connectivity
     """
     try:
-        # Check database
-        db.execute("SELECT 1")
+        # Check database (using text() for SQLAlchemy 2.0 compatibility)
+        db.execute(text("SELECT 1"))
         db_ok = True
     except Exception as e:
         app_logger.error(f"Database health check failed: {str(e)}")
@@ -336,7 +353,10 @@ async def predict_diabetes(
 ):
     """Predict diabetes likelihood."""
     if not MODELS_READY:
-        raise HTTPException(status_code=503, detail="Models not loaded")
+        raise HTTPException(
+            status_code=503, 
+            detail=f"Models not loaded. Error: {STARTUP_ERROR}" if settings.DEBUG else "Models not loaded"
+        )
     
     features = [data.hbA1c_level, data.blood_glucose_level, data.age]
     names = ['hbA1c_level', 'blood_glucose_level', 'age']
@@ -353,7 +373,10 @@ async def predict_ckd(
 ):
     """Predict Chronic Kidney Disease likelihood."""
     if not MODELS_READY:
-        raise HTTPException(status_code=503, detail="Models not loaded")
+        raise HTTPException(
+            status_code=503, 
+            detail=f"Models not loaded. Error: {STARTUP_ERROR}" if settings.DEBUG else "Models not loaded"
+        )
     
     features = [data.age, data.hemo, data.pcv, data.rbcc, data.sc]
     names = ['age', 'hemo', 'pcv', 'rbcc', 'sc']
@@ -370,7 +393,10 @@ async def predict_cld(
 ):
     """Predict Chronic Liver Disease likelihood."""
     if not MODELS_READY:
-        raise HTTPException(status_code=503, detail="Models not loaded")
+        raise HTTPException(
+            status_code=503, 
+            detail=f"Models not loaded. Error: {STARTUP_ERROR}" if settings.DEBUG else "Models not loaded"
+        )
     
     features = [data.alkphos, data.sgot, data.sgpt, data.total_bilirubin, 
                 data.total_proteins, data.albumin]
@@ -388,7 +414,10 @@ async def predict_heart(
 ):
     """Predict Heart Disease likelihood."""
     if not MODELS_READY:
-        raise HTTPException(status_code=503, detail="Models not loaded")
+        raise HTTPException(
+            status_code=503, 
+            detail=f"Models not loaded. Error: {STARTUP_ERROR}" if settings.DEBUG else "Models not loaded"
+        )
     
     features = [data.age, data.chol, data.trestbps, data.cp, data.thalachh]
     names = ['age', 'chol', 'trestbps', 'cp', 'thalachh']
