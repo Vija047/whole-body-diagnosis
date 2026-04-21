@@ -42,6 +42,19 @@ app = FastAPI(
     redoc_url="/api/redoc"
 )
 
+@app.get("/debug/info")
+def debug_info():
+    import sklearn
+    import numpy
+    import joblib
+    return {
+        "numpy_version": numpy.__version__,
+        "sklearn_version": sklearn.__version__,
+        "joblib_version": joblib.__version__,
+        "python_version": os.sys.version
+    }
+
+
 @app.get("/")
 def root():
     return {"status": "ok", "message": "Whole Body Diagnosis API is running"}
