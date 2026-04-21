@@ -42,6 +42,11 @@ app = FastAPI(
     redoc_url="/api/redoc"
 )
 
+@app.get("/")
+def root():
+    return {"status": "ok", "message": "Whole Body Diagnosis API is running"}
+
+
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
