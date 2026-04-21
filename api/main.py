@@ -12,6 +12,7 @@ Features:
 
 import time
 import os
+import sys
 from datetime import datetime
 from functools import lru_cache
 
@@ -95,6 +96,18 @@ def verify_api_key(x_api_key: str = Header(...)) -> str:
 MODEL_CACHE = {}
 SCALER_CACHE = {}
 
+
+def _install_numpy_pickle_compat_aliases() -> None:
+    """Install module aliases so NumPy 2.x pickles can load on NumPy 1.x runtimes."""
+    if hasattr(np, "core"):
+        sys.modules.setdefault("numpy._core", np.core)
+        if hasattr(np.core, "multiarray"):
+            sys.modules.setdefault("numpy._core.multiarray", np.core.multiarray)
+        if hasattr(np.core, "numeric"):
+            sys.modules.setdefault("numpy._core.numeric", np.core.numeric)
+        if hasattr(np.core, "numerictypes"):
+            sys.modules.setdefault("numpy._core.numerictypes", np.core.numerictypes)
+
 def get_model_and_scaler(disease: str):
     """Lazy load and cache a specific model and scaler."""
     if disease in MODEL_CACHE and disease in SCALER_CACHE:
@@ -115,16 +128,25 @@ def get_model_and_scaler(disease: str):
         app_logger.info(f"🧠 Loading {disease} model into memory...")
         model = joblib.load(model_path)
         scaler = joblib.load(scaler_path)
+    except ModuleNotFoundError as e:
+        if "numpy._core" not in str(e):
+            app_logger.error(f"❌ Failed to load {disease} model: {str(e)}")
+            raise
+
+        app_logger.warning(
+            "Detected NumPy pickle compatibility issue (numpy._core). "
+            "Applying compatibility aliases and retrying model load."
+        )
+        _install_numpy_pickle_compat_aliases()
+        model = joblib.load(model_path)
+        scaler = joblib.load(scaler_path)
         
-        # Cache them
-        MODEL_CACHE[disease] = model
-        SCALER_CACHE[disease] = scaler
-        app_logger.info(f"✅ {disease} model loaded successfully")
-        
-        return model, scaler
-    except Exception as e:
-        app_logger.error(f"❌ Failed to load {disease} model: {str(e)}")
-        raise
+    # Cache them
+    MODEL_CACHE[disease] = model
+    SCALER_CACHE[disease] = scaler
+    app_logger.info(f"✅ {disease} model loaded successfully")
+    
+    return model, scaler
 
 
 # No longer load all on startup to save memory on Render Free tier
@@ -361,6 +383,8 @@ async def predict_diabetes(
         names = ['hbA1c_level', 'blood_glucose_level', 'age']
         result = make_prediction('diabetes', features, names, db, x_client_id)
         return PredictionResponse(**result)
+    except HTTPException:
+        raise
     except Exception as e:
         app_logger.error(f"Diabetes prediction failed: {str(e)}")
         raise HTTPException(
@@ -382,6 +406,8 @@ async def predict_ckd(
         names = ['age', 'hemo', 'pcv', 'rbcc', 'sc']
         result = make_prediction('ckd', features, names, db, x_client_id)
         return PredictionResponse(**result)
+    except HTTPException:
+        raise
     except Exception as e:
         app_logger.error(f"CKD prediction failed: {str(e)}")
         raise HTTPException(
@@ -404,6 +430,8 @@ async def predict_cld(
         names = ['alkphos', 'sgot', 'sgpt', 'total_bilirubin', 'total_proteins', 'albumin']
         result = make_prediction('cld', features, names, db, x_client_id)
         return PredictionResponse(**result)
+    except HTTPException:
+        raise
     except Exception as e:
         app_logger.error(f"CLD prediction failed: {str(e)}")
         raise HTTPException(
@@ -425,6 +453,8 @@ async def predict_heart(
         names = ['age', 'chol', 'trestbps', 'cp', 'thalachh']
         result = make_prediction('heart', features, names, db, x_client_id)
         return PredictionResponse(**result)
+    except HTTPException:
+        raise
     except Exception as e:
         app_logger.error(f"Heart prediction failed: {str(e)}")
         raise HTTPException(
