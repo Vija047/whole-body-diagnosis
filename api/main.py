@@ -18,7 +18,7 @@ from functools import lru_cache
 from fastapi import FastAPI, HTTPException, Depends, status, Header, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, validator, ConfigDict
 import joblib
 import numpy as np
 import pandas as pd
@@ -173,8 +173,7 @@ class PredictionResponse(BaseModel):
     model_version: str
     timestamp: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(protected_namespaces=(), from_attributes=True)
 
 
 class HealthResponse(BaseModel):
