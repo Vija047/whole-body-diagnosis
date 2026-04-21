@@ -73,58 +73,45 @@ def verify_api_key(x_api_key: str = Header(...)) -> str:
 # Model Management
 # ─────────────────────────────────────────────────────────────────
 
-@lru_cache(maxsize=1)
-def load_models():
-    """Lazy load and cache all models."""
-    models = {}
-    scalers = {}
-    diseases = ['diabetes', 'ckd', 'cld', 'heart']
+# Global cache for models and scalers
+MODEL_CACHE = {}
+SCALER_CACHE = {}
+
+def get_model_and_scaler(disease: str):
+    """Lazy load and cache a specific model and scaler."""
+    if disease in MODEL_CACHE and disease in SCALER_CACHE:
+        return MODEL_CACHE[disease], SCALER_CACHE[disease]
     
-    # Use absolute path to avoid CWD issues in different environments
+    # Use absolute path to avoid CWD issues
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     models_dir = os.path.join(base_dir, settings.MODELS_DIR)
     
-    app_logger.info(f"🔍 Loading models from: {models_dir}")
-    if os.path.exists(models_dir):
-        app_logger.info(f"📂 Directory contents: {os.listdir(models_dir)}")
-    else:
-        app_logger.error(f"❌ Directory NOT FOUND: {models_dir}")
+    model_path = os.path.join(models_dir, f'{disease}_model.pkl')
+    scaler_path = os.path.join(models_dir, f'{disease}_scaler.pkl')
     
-    for disease in diseases:
-        model_path = os.path.join(models_dir, f'{disease}_model.pkl')
-        scaler_path = os.path.join(models_dir, f'{disease}_scaler.pkl')
-        
-        if not os.path.exists(model_path):
-            app_logger.error(f"❌ Model file missing: {model_path}")
-            raise FileNotFoundError(f"Model not found: {model_path}")
-        if not os.path.exists(scaler_path):
-            app_logger.error(f"❌ Scaler file missing: {scaler_path}")
-            raise FileNotFoundError(f"Scaler not found: {scaler_path}")
-        
-        try:
-            models[disease] = joblib.load(model_path)
-            scalers[disease] = joblib.load(scaler_path)
-            app_logger.info(f"✅ Loaded {disease} model and scaler")
-        except Exception as e:
-            app_logger.error(f"❌ Failed to load {disease} models: {str(e)}")
-            raise
+    if not os.path.exists(model_path) or not os.path.exists(scaler_path):
+        app_logger.error(f"❌ Files missing for {disease}: {model_path} or {scaler_path}")
+        raise FileNotFoundError(f"Model or scaler not found for {disease}")
     
-    return models, scalers
+    try:
+        app_logger.info(f"🧠 Loading {disease} model into memory...")
+        model = joblib.load(model_path)
+        scaler = joblib.load(scaler_path)
+        
+        # Cache them
+        MODEL_CACHE[disease] = model
+        SCALER_CACHE[disease] = scaler
+        app_logger.info(f"✅ {disease} model loaded successfully")
+        
+        return model, scaler
+    except Exception as e:
+        app_logger.error(f"❌ Failed to load {disease} model: {str(e)}")
+        raise
 
 
-# Load on startup
-try:
-    MODELS, SCALERS = load_models()
-    MODELS_READY = True
-except Exception as e:
-    app_logger.critical(f"🚨 Failed to load models on startup: {str(e)}")
-    # Store the actual error for debugging
-    STARTUP_ERROR = str(e)
-    MODELS_READY = False
-    MODELS = {}
-    SCALERS = {}
-else:
-    STARTUP_ERROR = None
+# No longer load all on startup to save memory on Render Free tier
+MODELS_READY = True  # We'll handle individual failures in the routes
+STARTUP_ERROR = None
 
 
 # ─────────────────────────────────────────────────────────────────
@@ -226,16 +213,16 @@ def make_prediction(
     start_time = time.time()
     
     try:
-        if disease not in MODELS:
-            raise ValueError(f"Unknown disease: {disease}")
+        # Lazy load model and scaler
+        model, scaler = get_model_and_scaler(disease)
         
         # Prepare input
         arr = pd.DataFrame([features], columns=feature_names)
-        arr_scaled = SCALERS[disease].transform(arr)
+        arr_scaled = scaler.transform(arr)
         
         # Get prediction
-        pred_class = MODELS[disease].predict(arr_scaled)[0]
-        pred_proba = MODELS[disease].predict_proba(arr_scaled)[0][1]
+        pred_class = model.predict(arr_scaled)[0]
+        pred_proba = model.predict_proba(arr_scaled)[0][1]
         
         # Determine result
         result = 'Positive' if pred_class == 1 else 'Negative'
@@ -336,9 +323,9 @@ async def health_check(db: Session = Depends(get_db)):
         db_ok = False
     
     return HealthResponse(
-        status="healthy" if MODELS_READY and db_ok else "degraded",
+        status="healthy" if db_ok else "degraded",
         timestamp=datetime.utcnow(),
-        models_loaded=list(MODELS.keys()) if MODELS_READY else [],
+        models_loaded=list(MODEL_CACHE.keys()),
         database_connected=db_ok,
         version="2.0.0"
     )
@@ -352,16 +339,17 @@ async def predict_diabetes(
     x_client_id: str = Header(None)
 ):
     """Predict diabetes likelihood."""
-    if not MODELS_READY:
+    try:
+        features = [data.hbA1c_level, data.blood_glucose_level, data.age]
+        names = ['hbA1c_level', 'blood_glucose_level', 'age']
+        result = make_prediction('diabetes', features, names, db, x_client_id)
+        return PredictionResponse(**result)
+    except Exception as e:
+        app_logger.error(f"Diabetes prediction failed: {str(e)}")
         raise HTTPException(
-            status_code=503, 
-            detail=f"Models not loaded. Error: {STARTUP_ERROR}" if settings.DEBUG else "Models not loaded"
+            status_code=503,
+            detail=f"Model failed to load or predict. Error: {str(e)}" if settings.DEBUG else "Diagnosis service temporarily unavailable"
         )
-    
-    features = [data.hbA1c_level, data.blood_glucose_level, data.age]
-    names = ['hbA1c_level', 'blood_glucose_level', 'age']
-    result = make_prediction('diabetes', features, names, db, x_client_id)
-    return PredictionResponse(**result)
 
 
 @app.post("/predict/ckd", response_model=PredictionResponse, tags=["Predictions"])
@@ -372,16 +360,17 @@ async def predict_ckd(
     x_client_id: str = Header(None)
 ):
     """Predict Chronic Kidney Disease likelihood."""
-    if not MODELS_READY:
+    try:
+        features = [data.age, data.hemo, data.pcv, data.rbcc, data.sc]
+        names = ['age', 'hemo', 'pcv', 'rbcc', 'sc']
+        result = make_prediction('ckd', features, names, db, x_client_id)
+        return PredictionResponse(**result)
+    except Exception as e:
+        app_logger.error(f"CKD prediction failed: {str(e)}")
         raise HTTPException(
-            status_code=503, 
-            detail=f"Models not loaded. Error: {STARTUP_ERROR}" if settings.DEBUG else "Models not loaded"
+            status_code=503,
+            detail=f"Model failed to load or predict. Error: {str(e)}" if settings.DEBUG else "Diagnosis service temporarily unavailable"
         )
-    
-    features = [data.age, data.hemo, data.pcv, data.rbcc, data.sc]
-    names = ['age', 'hemo', 'pcv', 'rbcc', 'sc']
-    result = make_prediction('ckd', features, names, db, x_client_id)
-    return PredictionResponse(**result)
 
 
 @app.post("/predict/cld", response_model=PredictionResponse, tags=["Predictions"])
@@ -392,17 +381,18 @@ async def predict_cld(
     x_client_id: str = Header(None)
 ):
     """Predict Chronic Liver Disease likelihood."""
-    if not MODELS_READY:
+    try:
+        features = [data.alkphos, data.sgot, data.sgpt, data.total_bilirubin, 
+                    data.total_proteins, data.albumin]
+        names = ['alkphos', 'sgot', 'sgpt', 'total_bilirubin', 'total_proteins', 'albumin']
+        result = make_prediction('cld', features, names, db, x_client_id)
+        return PredictionResponse(**result)
+    except Exception as e:
+        app_logger.error(f"CLD prediction failed: {str(e)}")
         raise HTTPException(
-            status_code=503, 
-            detail=f"Models not loaded. Error: {STARTUP_ERROR}" if settings.DEBUG else "Models not loaded"
+            status_code=503,
+            detail=f"Model failed to load or predict. Error: {str(e)}" if settings.DEBUG else "Diagnosis service temporarily unavailable"
         )
-    
-    features = [data.alkphos, data.sgot, data.sgpt, data.total_bilirubin, 
-                data.total_proteins, data.albumin]
-    names = ['alkphos', 'sgot', 'sgpt', 'total_bilirubin', 'total_proteins', 'albumin']
-    result = make_prediction('cld', features, names, db, x_client_id)
-    return PredictionResponse(**result)
 
 
 @app.post("/predict/heart", response_model=PredictionResponse, tags=["Predictions"])
@@ -413,16 +403,17 @@ async def predict_heart(
     x_client_id: str = Header(None)
 ):
     """Predict Heart Disease likelihood."""
-    if not MODELS_READY:
+    try:
+        features = [data.age, data.chol, data.trestbps, data.cp, data.thalachh]
+        names = ['age', 'chol', 'trestbps', 'cp', 'thalachh']
+        result = make_prediction('heart', features, names, db, x_client_id)
+        return PredictionResponse(**result)
+    except Exception as e:
+        app_logger.error(f"Heart prediction failed: {str(e)}")
         raise HTTPException(
-            status_code=503, 
-            detail=f"Models not loaded. Error: {STARTUP_ERROR}" if settings.DEBUG else "Models not loaded"
+            status_code=503,
+            detail=f"Model failed to load or predict. Error: {str(e)}" if settings.DEBUG else "Diagnosis service temporarily unavailable"
         )
-    
-    features = [data.age, data.chol, data.trestbps, data.cp, data.thalachh]
-    names = ['age', 'chol', 'trestbps', 'cp', 'thalachh']
-    result = make_prediction('heart', features, names, db, x_client_id)
-    return PredictionResponse(**result)
 
 
 @app.get("/models/info", tags=["Models"])
